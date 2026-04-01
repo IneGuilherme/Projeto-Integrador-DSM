@@ -1,0 +1,9 @@
+{
+  "/api/pedido/route": "app/api/pedido/route.js",
+  "/api/produto/route": "app/api/produto/route.js",
+  "/checkout/page": "app/checkout/page.js",
+  "/icon.png/route": "app/icon.png/route.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/produtos/page": "app/produtos/page.js"
+}

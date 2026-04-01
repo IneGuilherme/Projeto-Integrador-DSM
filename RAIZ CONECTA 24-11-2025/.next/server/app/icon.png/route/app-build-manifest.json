@@ -1,0 +1,15 @@
+{
+  "pages": {
+    "/icon.png/route": [
+      "static/chunks/[turbopack]_browser_dev_hmr-client_hmr-client_ts_f931bb2f._.js",
+      "static/chunks/82908_next_dist_compiled_react-dom_07c1a255._.js",
+      "static/chunks/82908_next_dist_compiled_next-devtools_index_b46c449b.js",
+      "static/chunks/82908_next_dist_compiled_c5a2240e._.js",
+      "static/chunks/82908_next_dist_client_7bb61cca._.js",
+      "static/chunks/82908_next_dist_72520785._.js",
+      "static/chunks/82908_@swc_helpers_cjs_98da8da8._.js",
+      "static/chunks/Desktop_PI_DSM-main_RAIZ CONECTA 24-11-2025_a0ff3932._.js",
+      "static/chunks/turbopack-Desktop_PI_DSM-main_RAIZ CONECTA 24-11-2025_a96e55aa._.js"
+    ]
+  }
+}
