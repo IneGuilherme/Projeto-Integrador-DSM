@@ -198,33 +198,33 @@ function Checkout() {
     const handleFinalizarPedido2 = async (e)=>{
         e.preventDefault();
         try {
-            console.log("Enviando pedido para o backend...", {
-                produtos,
-                dadosEntrega: formData
-            });
-            // (Lógica de enviar pedido...)
-            // Limpa o carrinho na API
+            // 1. Enviamos o sinal para a API disparar o e-mail da Nota Fiscal
             const response = await fetch("/api/pedido", {
-                method: "DELETE"
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    finalizar: true
+                }) // <--- SINAL CRUCIAL
             });
-            if (!response.ok) throw new Error("Falha ao limpar o carrinho na API");
+            if (!response.ok) throw new Error("Falha ao finalizar o pedido na API");
+            // 2. Se o e-mail foi disparado com sucesso, limpamos o frontend
             setProdutos([]);
-            // Reseta o formulário
             setFormData({
                 nomeCompleto: "",
                 telefone: "",
                 cep: "",
                 endereco: "",
                 num: "",
-                // complemento: "", // REMOVIDO
                 bairro: "",
                 cidade: "",
                 estado: ""
             });
-        // alert("Obrigado pelo seu pedido!");
+            alert("Pedido finalizado com sucesso! A nota fiscal foi enviada ao vendedor.");
         } catch (error) {
             console.error("Erro ao finalizar o pedido:", error);
-        // alert("Houve um erro ao processar seu pedido. Tente novamente.");
+            alert("Houve um erro ao processar seu pedido. Verifique se o microserviço está ligado.");
         }
     };
     return(// Usado classes do bootstrap para um fundo leve

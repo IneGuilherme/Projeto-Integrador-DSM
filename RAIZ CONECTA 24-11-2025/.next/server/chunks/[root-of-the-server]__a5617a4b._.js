@@ -65,7 +65,7 @@ __turbopack_context__.s([
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$PI_DSM$2d$main$2f$RAIZ__CONECTA__24$2d$11$2d$2025$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Desktop/PI_DSM-main/RAIZ CONECTA 24-11-2025/node_modules/next/server.js [app-route] (ecmascript)");
 ;
-// Simulação de base de dados em memória (limpa ao reiniciar o servidor)
+// Simulação de base de dados em memória
 let carrinho = [];
 async function GET() {
     return __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$PI_DSM$2d$main$2f$RAIZ__CONECTA__24$2d$11$2d$2025$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(carrinho, {
@@ -74,16 +74,57 @@ async function GET() {
 }
 async function POST(request) {
     try {
-        const itemAdicionado = await request.json();
-        // Validação básica
+        // 1. Recebemos a intenção do frontend (pode ser um novo item ou o sinal de finalizar)
+        const corpo = await request.json().catch(()=>({}));
+        // Se o corpo vier com uma flag 'finalizar: true', enviamos o e-mail com TUDO
+        if (corpo.finalizar) {
+            if (carrinho.length === 0) {
+                return __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$PI_DSM$2d$main$2f$RAIZ__CONECTA__24$2d$11$2d$2025$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                    message: "Carrinho vazio!"
+                }, {
+                    status: 400
+                });
+            }
+            // Calculamos o total de todos os itens no carrinho
+            const valorTotalGeral = carrinho.reduce((acc, item)=>acc + (item.preco || 0) * item.quantidade, 0).toFixed(2);
+            // Chamada ao microserviço com a LISTA COMPLETA
+            try {
+                await fetch('http://localhost:3001/enviar-venda', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        emailVendedor: "vendedor@teste.com",
+                        nomeVendedor: "Produtor Raiz Conecta",
+                        dadosPedido: {
+                            id: Math.floor(Math.random() * 10000),
+                            valorTotal: valorTotalGeral,
+                            itens: carrinho // ENVIAMOS O ARRAY COMPLETO AQUI
+                        }
+                    })
+                });
+            // Opcional: Esvaziar o carrinho após finalizar a compra com sucesso
+            // carrinho = []; 
+            } catch (err) {
+                console.log("Erro ao conectar com microserviço de e-mail.");
+            }
+            return __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$PI_DSM$2d$main$2f$RAIZ__CONECTA__24$2d$11$2d$2025$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
+                message: "Compra finalizada e nota enviada!",
+                total: valorTotalGeral
+            }, {
+                status: 200
+            });
+        }
+        // --- LÓGICA DE ADICIONAR ITEM (Se não for para finalizar) ---
+        const itemAdicionado = corpo;
         if (!itemAdicionado.id || !itemAdicionado.quantidade) {
             return __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$PI_DSM$2d$main$2f$RAIZ__CONECTA__24$2d$11$2d$2025$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json({
-                message: "Requisição inválida. 'id' e 'quantidade' são obrigatórios."
+                message: "Dados inválidos."
             }, {
                 status: 400
             });
         }
-        // Verifica se o item já existe
         const itemExistenteIndex = carrinho.findIndex((item)=>item.id === itemAdicionado.id);
         if (itemExistenteIndex > -1) {
             carrinho[itemExistenteIndex].quantidade = itemAdicionado.quantidade;
@@ -91,26 +132,8 @@ async function POST(request) {
                 carrinho = carrinho.filter((item)=>item.id !== itemAdicionado.id);
             }
         } else if (itemAdicionado.quantidade > 0) {
+            // Importante: certifique-se que o itemAdicionado tenha 'nome' e 'preco' vindo do front
             carrinho.push(itemAdicionado);
-        }
-        // micorserviço
-        try {
-            await fetch('http://localhost:3001/enviar-venda', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    emailVendedor: "glhrmbaeza@gmail.com",
-                    nomeVendedor: "Produtor Teste",
-                    dadosPedido: {
-                        id: itemAdicionado.id,
-                        valorTotal: (itemAdicionado.preco || 0) * itemAdicionado.quantidade
-                    }
-                })
-            });
-        } catch (err) {
-            console.log("Aviso: Microserviço de e-mail offline, mas o item foi gerido no carrinho.");
         }
         return __TURBOPACK__imported__module__$5b$project$5d2f$Desktop$2f$PI_DSM$2d$main$2f$RAIZ__CONECTA__24$2d$11$2d$2025$2f$node_modules$2f$next$2f$server$2e$js__$5b$app$2d$route$5d$__$28$ecmascript$29$__["NextResponse"].json(carrinho, {
             status: 201
